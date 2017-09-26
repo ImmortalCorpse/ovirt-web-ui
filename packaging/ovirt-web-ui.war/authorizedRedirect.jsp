@@ -3,13 +3,17 @@
 <!-- Passes through oVirt SSO and redirects while populating SSO token -->
 <!-- Example:redirectUrl=https://engine.local/ovirt-engine/web-ui/authorizedRedirect.jsp?redirectUrl=https://192.168.122.101:9090/machines?token=TOKEN -->
 <%
-String redirectUrl = request.getParameter("redirectUrl");
-if (redirectUrl != null) {
-        redirectUrl = java.net.URLDecoder.decode(redirectUrl, "UTF-8");
-        redirectUrl = redirectUrl.replace("__hash__", "#");
-        redirectUrl = redirectUrl.replace("TOKEN", ((java.util.Map<String, String>)(request.getSession().getAttribute("userInfo"))).get("ssoToken"));
-        response.sendRedirect(redirectUrl);
-}
+    String result = "redirect not set";
+    String redirectUrl = request.getParameter("redirectUrl");
+    redirectUrl = (redirectUrl != null) ? redirectUrl : request.getParameter("redirect_uri"); // ovirt-cockpit-sso
+
+    if (redirectUrl != null) {
+        String token = ((java.util.Map<String, String>) (request.getSession().getAttribute("userInfo"))).get("ssoToken");
+        result = java.net.URLDecoder.decode(redirectUrl, "UTF-8");
+        result = result.replace("__hash__", "#");
+        result = result.replace("TOKEN", token);
+        response.sendRedirect(result);
+    }
 %>
-<%= redirectUrl %>
+<%= result %>
 
